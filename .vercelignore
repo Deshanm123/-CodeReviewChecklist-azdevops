@@ -6,6 +6,5 @@ coverage
 dist
 docs
 node_modules
-prisma/migrations
 src/**/*.test.ts
 src/**/*.test.tsx

@@ -38,14 +38,16 @@ PATs or client secrets—the API uses the signed-in extension user's bearer toke
 
 ## 3. Apply the database migration
 
-Run migrations as an explicit release step against the target database:
+Production deployments run the committed migrations as an explicit release step
+before the API type-check. The release script resolves the same supported database
+URL variables as the runtime and then runs:
 
 ```bash
-DATABASE_URL="your-pooled-production-url" npx prisma migrate deploy
+npx prisma migrate deploy
 ```
 
-Migrations are deliberately not run during every Preview build because a Preview
-deployment should not mutate a shared production schema.
+The release script skips migrations for local and Preview builds so those builds do
+not mutate a shared production schema.
 
 ## 4. Deploy and verify
 

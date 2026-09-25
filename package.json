@@ -10,7 +10,7 @@
     "build": "npm run build:extension && npm run build:api",
     "build:extension": "vite build",
     "build:api": "tsc -p tsconfig.api.json",
-    "vercel-build": "prisma generate && tsc -p tsconfig.api.json --noEmit",
+    "vercel-build": "prisma generate && npm run prisma:deploy && tsc -p tsconfig.api.json --noEmit",
     "package:extension": "npm run build:extension && tfx extension create --manifest-globs vss-extension.json --output-path dist/review-checklist-0.1.3.vsix",
     "dev:extension": "vite",
     "dev:api": "tsx watch src/server.ts",
@@ -20,6 +20,7 @@
     "test:coverage": "vitest run --coverage",
     "typecheck": "tsc -p tsconfig.api.json --noEmit && tsc -p tsconfig.extension.json --noEmit",
     "prisma:generate": "prisma generate",
+    "prisma:deploy": "node scripts/deploy-migrations.mjs",
     "prisma:migrate": "prisma migrate dev"
   },
   "dependencies": {
