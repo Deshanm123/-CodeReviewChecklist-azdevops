@@ -65,11 +65,11 @@ Authenticated review-finding routes remain under `/api/review-findings`.
 
 ## 5. Rebuild the VSIX
 
-Set `VITE_REVIEW_FINDINGS_API_URL` to the deployed URL plus `/api`, replace the
-publisher placeholder in `vss-extension.json`, and rebuild:
+Set `VITE_REVIEW_FINDINGS_API_URL` to the deployed backend root URL. The extension
+normalizes it to the `/api` route prefix. Then rebuild:
 
 ```bash
-VITE_REVIEW_FINDINGS_API_URL="https://your-api.example.com/api" npm run package:extension
+VITE_REVIEW_FINDINGS_API_URL="https://your-api.example.com/" npm run package:extension
 ```
 
 Because Vite values are embedded at build time, changing the Vercel URL requires a

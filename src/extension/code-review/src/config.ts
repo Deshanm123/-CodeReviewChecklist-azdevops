@@ -5,6 +5,11 @@ export interface ExtensionConfig {
   developerFieldReferenceName: string;
 }
 
+export function normalizeApiUrl(value: string): string {
+  const baseUrl = value.trim().replace(/\/+$/, "");
+  return baseUrl.endsWith("/api") ? baseUrl : `${baseUrl}/api`;
+}
+
 export function loadExtensionConfig(): ExtensionConfig {
   const apiUrl = import.meta.env.VITE_REVIEW_FINDINGS_API_URL?.trim();
   const developerFieldReferenceName = import.meta.env.VITE_DEVELOPER_FIELD_REFERENCE_NAME?.trim();
@@ -15,7 +20,7 @@ export function loadExtensionConfig(): ExtensionConfig {
   }
 
   return {
-    apiUrl: apiUrl.replace(/\/$/, ""),
+    apiUrl: normalizeApiUrl(apiUrl),
     supportedWorkItemType:
       import.meta.env.VITE_SUPPORTED_WORK_ITEM_TYPE?.trim() || "Product Backlog Item",
     supportedStates: (import.meta.env.VITE_SUPPORTED_STATES || "In Progress,Code Review Pending")
@@ -25,4 +30,3 @@ export function loadExtensionConfig(): ExtensionConfig {
     developerFieldReferenceName,
   };
 }
-
