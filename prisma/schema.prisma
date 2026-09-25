@@ -1,0 +1,39 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum ReviewFindingSeverity {
+  Minor
+  Low
+  Medium
+  High
+  Critical
+}
+
+model ReviewFinding {
+  id             String                @id @default(uuid()) @db.Uuid
+  organizationId String
+  projectId      String
+  workItemId     Int
+  task           String
+  severity       ReviewFindingSeverity
+  description    String?
+  done           Boolean               @default(false)
+  createdBy      String
+  createdAt      DateTime               @default(now())
+  doneBy         String?
+  doneAt         DateTime?
+  updatedAt      DateTime               @updatedAt
+  version        Int                    @default(1)
+  idempotencyKey String
+
+  @@index([organizationId, projectId, workItemId, severity])
+  @@unique([organizationId, projectId, workItemId, idempotencyKey])
+  @@map("ReviewFindings")
+}
+

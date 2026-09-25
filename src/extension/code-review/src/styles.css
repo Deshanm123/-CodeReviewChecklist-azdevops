@@ -1,0 +1,214 @@
+:root {
+  color: var(--text-primary-color, #242424);
+  background: var(--background-color, #fff);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 14px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+.code-review {
+  max-width: 980px;
+  padding: 20px;
+}
+
+.page-header {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 20px;
+}
+
+h1,
+h2,
+h3,
+p {
+  margin-top: 0;
+}
+
+h1 {
+  margin-bottom: 4px;
+  font-size: 24px;
+}
+
+h2 {
+  font-size: 18px;
+}
+
+h3 {
+  margin-bottom: 4px;
+  font-size: 15px;
+}
+
+.progress,
+.read-only-note,
+.optional,
+.not-applicable {
+  color: var(--text-secondary-color, #616161);
+}
+
+.finding-form {
+  padding: 16px;
+  margin-bottom: 24px;
+  border: 1px solid var(--palette-neutral-20, #ddd);
+  border-radius: 4px;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: minmax(240px, 2fr) minmax(160px, 1fr);
+  gap: 12px;
+}
+
+label {
+  display: grid;
+  gap: 6px;
+  margin-bottom: 12px;
+  font-weight: 600;
+}
+
+input,
+select,
+textarea {
+  width: 100%;
+  padding: 8px;
+  color: inherit;
+  background: var(--background-color, #fff);
+  border: 1px solid var(--palette-neutral-40, #999);
+  border-radius: 2px;
+}
+
+input:focus,
+select:focus,
+textarea:focus,
+button:focus-visible {
+  outline: 2px solid var(--communication-background, #0078d4);
+  outline-offset: 2px;
+}
+
+button {
+  padding: 8px 16px;
+  color: #fff;
+  background: var(--communication-background, #0078d4);
+  border: 0;
+  border-radius: 2px;
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+
+.findings-list {
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.finding {
+  display: grid;
+  grid-template-columns: 90px minmax(0, 1fr) 120px;
+  gap: 16px;
+  align-items: start;
+  padding: 14px 0;
+  border-top: 1px solid var(--palette-neutral-20, #ddd);
+}
+
+.finding--done .finding-content {
+  opacity: 0.7;
+}
+
+.finding-content p {
+  margin-bottom: 0;
+  white-space: pre-wrap;
+}
+
+.severity {
+  padding: 3px 8px;
+  text-align: center;
+  font-weight: 700;
+  border: 1px solid currentColor;
+  border-radius: 12px;
+}
+
+.severity--critical,
+.severity--high {
+  color: var(--status-error-text, #a4262c);
+}
+
+.severity--medium {
+  color: var(--status-warning-text, #8a6d00);
+}
+
+.severity--low,
+.severity--minor {
+  color: var(--status-info-text, #005a9e);
+}
+
+.finding-status label {
+  display: flex;
+  grid: none;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+}
+
+.finding-status input {
+  width: auto;
+}
+
+.error,
+.validation {
+  color: var(--status-error-text, #a4262c);
+}
+
+.error {
+  padding: 10px;
+  margin-bottom: 12px;
+  border-left: 4px solid currentColor;
+}
+
+.success {
+  min-height: 20px;
+  color: var(--status-success-text, #107c10);
+}
+
+.empty-state,
+.not-applicable {
+  padding: 20px;
+}
+
+@media (max-width: 640px) {
+  .code-review {
+    padding: 12px;
+  }
+
+  .page-header,
+  .form-grid {
+    display: block;
+  }
+
+  .finding {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .severity {
+    width: fit-content;
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "manifestVersion": 1,
+  "id": "code-review-checklist",
+  "name": "Code Review Checklist",
+  "version": "0.1.0",
+  "publisher": "DeshanMaduranga",
+  "description": "Severity-ranked review findings on Azure DevOps work items.",
+  "public": false,
+  "categories": ["Azure Boards"],
+  "targets": [{ "id": "Microsoft.VisualStudio.Services" }],
+  "scopes": ["vso.work"],
+  "files": [
+    {
+      "path": "dist/extension/code-review",
+      "addressable": true
+    }
+  ],
+  "contributions": [
+    {
+      "id": "code-review-work-item-page",
+      "type": "ms.vss-work-web.work-item-form-page",
+      "targets": ["ms.vss-work-web.work-item-form"],
+      "properties": {
+        "name": "Code Review",
+        "uri": "dist/extension/code-review/index.html"
+      }
+    }
+  ]
+}
+

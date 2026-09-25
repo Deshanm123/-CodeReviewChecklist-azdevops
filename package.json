@@ -1,0 +1,48 @@
+{
+  "name": "azure-devops-code-review-checklist",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=20.19"
+  },
+  "scripts": {
+    "build": "npm run build:extension && npm run build:api",
+    "build:extension": "vite build",
+    "build:api": "tsc -p tsconfig.api.json",
+    "package:extension": "npm run build:extension && tfx extension create --manifest-globs vss-extension.json --output-path dist/code-review-checklist-0.1.0.vsix",
+    "dev:extension": "vite",
+    "dev:api": "tsx watch src/api/server.ts",
+    "start": "node dist/src/api/server.js",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "typecheck": "tsc -p tsconfig.api.json --noEmit && tsc -p tsconfig.extension.json --noEmit",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate dev"
+  },
+  "dependencies": {
+    "@fastify/cors": "^11.3.0",
+    "@prisma/client": "6.19.0",
+    "azure-devops-extension-api": "^5.276.0",
+    "azure-devops-extension-sdk": "^4.2.0",
+    "fastify": "^5.12.5",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0"
+  },
+  "devDependencies": {
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.3",
+    "@types/node": "^26.6.2",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.1.1",
+    "jsdom": "^30.1.1",
+    "prisma": "6.19.0",
+    "tfx-cli": "^0.24.2",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.1",
+    "vitest": "^5.0.1"
+  }
+}
