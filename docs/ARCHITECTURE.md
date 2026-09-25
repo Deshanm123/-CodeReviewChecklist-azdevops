@@ -268,3 +268,8 @@ Existing Fastify API on Vercel Functions (new module)
             +
 Existing managed PostgreSQL Database (new table)
 ```
+
+The Fastify application uses Vercel's supported `src/server.ts` entry-point
+detection and deploys as one Node.js Function. The extension bundle is not served
+by that function; it is packaged into the Azure DevOps VSIX separately. Required
+runtime configuration and migration steps are documented in `VERCEL.md`.

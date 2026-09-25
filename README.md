@@ -63,6 +63,9 @@ This feature is developed inside the existing repository alongside the Time Logg
    `npm run dev:extension`.
 6. Run `npm test`, `npm run typecheck`, and `npm run build` before packaging.
 
+For backend deployment, follow [`docs/VERCEL.md`](docs/VERCEL.md). The backend is a
+single Vercel Fastify Function; the extension remains a separately packaged VSIX.
+
 The extension manifest contains a placeholder publisher. Replace
 `replace-with-your-publisher` in `vss-extension.json` before packaging it with the
 Azure DevOps extension tooling.

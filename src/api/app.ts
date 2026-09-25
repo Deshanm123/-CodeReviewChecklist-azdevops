@@ -14,6 +14,7 @@ import { prisma } from "./prisma.js";
 
 export interface AppOverrides {
   config?: ApiConfig;
+  instance?: FastifyInstance;
   repository?: ReviewFindingRepository;
   authenticator?: AzureDevOpsAuthenticator;
   workItems?: DeveloperResolver;
@@ -22,14 +23,16 @@ export interface AppOverrides {
 
 export async function buildApp(overrides: AppOverrides = {}): Promise<FastifyInstance> {
   const config = overrides.config ?? loadConfig();
-  const app = Fastify({
-    logger:
-      overrides.logger === false
-        ? false
-        : {
-            redact: ["req.headers.authorization"],
-          },
-  });
+  const app =
+    overrides.instance ??
+    Fastify({
+      logger:
+        overrides.logger === false
+          ? false
+          : {
+              redact: ["req.headers.authorization"],
+            },
+    });
 
   await app.register(cors, {
     origin(origin, callback) {

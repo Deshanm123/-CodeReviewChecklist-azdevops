@@ -7,3 +7,6 @@ coverage/
 .DS_Store
 prisma/*.db
 
+.vercel
+.env*
+!.env.example
