@@ -4,7 +4,7 @@
 
 An initial code scaffold now covers the deliverables through Phase 4: Prisma model
 and migration, Fastify routes/service/repository, Azure DevOps work-item adapters,
-the Code Review page contribution, accessible add/list/resolve UI, configuration,
+the Reviews page contribution, accessible add/list/resolve UI, configuration,
 and focused tests. It has not yet been validated against a real Azure DevOps
 organization or PostgreSQL instance. Authentication ADR-007 remains proposed
 because the referenced existing Time Logger identity implementation was not present
@@ -20,7 +20,7 @@ Deliverables:
 
 - `review-findings` Prisma model and migration;
 - `review-findings` API module (routes/service/repository) inside the existing Fastify app;
-- `Code Review` work-item-form page contribution added to the existing extension manifest;
+- `Reviews` work-item-form page contribution added to the existing extension manifest;
 - unit-test scaffolding for the new module.
 
 Exit criteria:
@@ -35,16 +35,16 @@ Exit criteria:
 
 Deliverables:
 
-- read work-item type, state, Developer field, and current user from form context;
-- client-side gate: PBI type + state in `{In Progress, Code Review Pending}`;
+- read work-item type, Developer field, and current user from form context;
+- client-side gate based only on PBI work-item type;
 - empty-state UI when there are no findings yet;
 - loading/error states.
 
 Exit criteria:
 
-- opening a PBI in `In Progress` or `Code Review Pending` shows the tab;
-- opening a PBI in any other state, or a non-PBI work item, does not show the checklist UI;
-- gate re-evaluates on a live state change where the SDK supports it.
+- opening a PBI in any state shows the Reviews UI;
+- opening a non-PBI work item does not show the checklist UI;
+- the gate re-evaluates on a live work-item-type change where the SDK supports it.
 
 ## Phase 2 — Add and view findings
 
@@ -89,7 +89,7 @@ Exit criteria:
 Deliverables:
 
 - accessibility pass (keyboard use, labels, no color-only severity signaling);
-- configurable type/state allow-list and Developer field reference name;
+- configurable work-item type and Developer field reference name;
 - clear permission-denied messaging;
 - responsive layout;
 - telemetry/correlation IDs consistent with the existing API.
@@ -116,7 +116,7 @@ Possible deliverables:
 Possible deliverables:
 
 - surface unresolved Critical/High counts on the work item summary;
-- optional warning (not a hard block) when moving a PBI out of `Code Review Pending` with unresolved Critical findings;
+- optional category-specific workflows if QA, code, and BA reviews later need different ownership or completion rules;
 - notification when a new Critical/High finding is added, or when all findings are resolved.
 
 ## Phase 7 — Reporting
@@ -136,9 +136,9 @@ For a pilot, stop after **Phase 4**.
 That gives:
 
 ```text
-PBI in In Progress / Code Review Pending
+PBI in any state
         ↓
-Code Review tab
+Reviews tab (QA + Code + BA)
         ↓
 Reviewer adds findings with severity (repeatable)
         ↓

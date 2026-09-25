@@ -2,12 +2,12 @@
 
 ## Product name
 
-**Azure DevOps Code Review Checklist**
+**Azure DevOps Review Checklist**
 Working name only; branding can change later.
 
 ## Product statement
 
-Build an Azure DevOps extension that lets a code reviewer leave a **dynamic, severity-ranked checklist** of review findings directly on a Product Backlog Item (PBI), and lets the assigned **Developer** resolve those findings from inside the same work item — without a separate review tool, spreadsheet, or comment thread.
+Build an Azure DevOps extension that lets QA, code, and BA reviewers leave a **dynamic, severity-ranked checklist** of review findings directly on a Product Backlog Item (PBI), and lets the assigned **Developer** resolve those findings from inside the same work item — without separate review tools, spreadsheets, or comment threads.
 
 ## Problem
 
@@ -26,7 +26,7 @@ Make leaving and resolving review findings a natural part of working a PBI: a re
 
 ### Reviewers
 
-Senior developers, tech leads, or peer developers who review a PBI's implementation and want to leave structured, severity-ranked findings.
+QA engineers, developers, tech leads, and business analysts who review a PBI and want to leave structured, severity-ranked findings.
 
 ### Developers
 
@@ -48,14 +48,11 @@ Scrum Masters / Tech Leads who want visibility into whether a PBI has outstandin
 
 > As a reviewer, I want to keep adding findings to the list at any point during review (not just once), because review is iterative and I find things as I go.
 
-> As a delivery lead, I want the checklist gated to PBIs that are actually in review, so it does not clutter every work item.
+> As a delivery lead, I want one review checklist on every PBI regardless of state, so QA, code, and BA findings remain visible throughout delivery.
 
 ## MVP experience
 
-The extension contributes a **Code Review** tab/section on the work-item form, shown **only** when:
-
-1. the work item type is **Product Backlog Item**, and
-2. the work item **State** is **In Progress** or **Code Review Pending**.
+The extension contributes a **Reviews** tab/section on Product Backlog Item forms. It is available in every PBI state and combines QA, code, and BA findings in one list.
 
 The tab contains:
 
@@ -78,10 +75,10 @@ The tab contains:
 
 ```text
 PBI #48213 — Add retry logic to webhook dispatcher
-State: Code Review Pending
+State: Any
 Developer: Nadeesha K.
 
-Code Review
+Reviews
 
 [+] Add finding
 
@@ -123,9 +120,9 @@ This is not a replacement for Pull Request review. It is a structured summary of
 
 The reviewer picks severity based on context (a typo in a comment vs. a typo in a user-facing string are not the same). The system provides a fixed severity scale; it does not attempt to auto-classify severity.
 
-### Visibility is gated by state and type
+### Visibility is gated only by work-item type
 
-The tab only appears where it is relevant (PBI, in-progress/review states), so it does not clutter other work-item types or stages.
+The checklist UI is available for PBIs in every state and remains excluded from other work-item types.
 
 ### Resolution is the developer's action, not the reviewer's
 
@@ -135,7 +132,7 @@ Only the assigned Developer marks items done. A reviewer cannot tick their own f
 
 Included:
 
-- Code Review tab, gated by work-item type = PBI and state in {In Progress, Code Review Pending}.
+- Shared Reviews tab for QA, code, and BA findings, gated only by work-item type = PBI.
 - Add a finding (task, severity, optional description).
 - Dynamic/repeated adding of findings during review.
 - View findings list, ordered by severity.

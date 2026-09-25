@@ -11,16 +11,16 @@ import { FindingForm } from "./components/FindingForm";
 import { FindingsList } from "./components/FindingsList";
 import type { ExtensionConfig } from "./config";
 import { isSameIdentity } from "./identity";
-import { isCodeReviewVisible } from "./visibility";
+import { isReviewVisible } from "./visibility";
 import type { WorkItemContext, WorkItemContextProvider } from "./work-item-context";
 
-interface CodeReviewAppProps {
+interface ReviewAppProps {
   api: ReviewFindingsApiClient;
   contextProvider: WorkItemContextProvider;
   config: ExtensionConfig;
 }
 
-export function CodeReviewApp({ api, contextProvider, config }: CodeReviewAppProps) {
+export function ReviewApp({ api, contextProvider, config }: ReviewAppProps) {
   const [context, setContext] = useState<WorkItemContext | null>(null);
   const [findings, setFindings] = useState<ReviewFindingDto[]>([]);
   const [loading, setLoading] = useState(true);
@@ -35,7 +35,7 @@ export function CodeReviewApp({ api, contextProvider, config }: CodeReviewAppPro
     try {
       const nextContext = await contextProvider.load();
       setContext(nextContext);
-      if (!isCodeReviewVisible(nextContext, config)) {
+      if (!isReviewVisible(nextContext, config)) {
         setFindings([]);
         return;
       }
@@ -105,14 +105,14 @@ export function CodeReviewApp({ api, contextProvider, config }: CodeReviewAppPro
     }
   }
 
-  if (loading) return <p role="status">Loading code review findings…</p>;
+  if (loading) return <p role="status">Loading review findings…</p>;
   if (!context) {
     return <ErrorNotice message={error || "The work-item context could not be loaded."} />;
   }
-  if (!isCodeReviewVisible(context, config)) {
+  if (!isReviewVisible(context, config)) {
     return (
       <p className="not-applicable">
-        Code Review is available for {config.supportedWorkItemType} items in: {config.supportedStates.join(", ")}.
+        Reviews are available for work items of type {config.supportedWorkItemType}.
       </p>
     );
   }
@@ -121,7 +121,7 @@ export function CodeReviewApp({ api, contextProvider, config }: CodeReviewAppPro
     <main className="code-review">
       <header className="page-header">
         <div>
-          <h1>Code Review</h1>
+          <h1>Reviews</h1>
           <p className="progress" aria-live="polite">
             {summary.resolved} of {summary.total} resolved
           </p>
@@ -174,4 +174,3 @@ function errorMessage(error: unknown): string {
   }
   return error instanceof Error ? error.message : "An unexpected error occurred.";
 }
-

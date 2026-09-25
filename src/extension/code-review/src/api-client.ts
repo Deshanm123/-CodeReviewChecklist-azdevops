@@ -71,7 +71,7 @@ export class ReviewFindingsApiClient {
     const body = (await response.json().catch(() => ({}))) as T & ApiErrorBody;
     if (!response.ok) {
       throw new ReviewFindingsApiError(
-        body.message ?? "The Code Review service request failed.",
+        body.message ?? "The Reviews service request failed.",
         response.status,
         body.code ?? "UNKNOWN_API_ERROR",
         body.correlationId,
@@ -88,4 +88,3 @@ function scopeQuery(scope: WorkItemScope): string {
     workItemId: String(scope.workItemId),
   }).toString();
 }
-

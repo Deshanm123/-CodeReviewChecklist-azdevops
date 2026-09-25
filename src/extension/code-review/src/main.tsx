@@ -2,7 +2,7 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import * as SDK from "azure-devops-extension-sdk";
 import { ReviewFindingsApiClient } from "./api-client";
-import { CodeReviewApp } from "./CodeReviewApp";
+import { ReviewApp } from "./CodeReviewApp";
 import { loadExtensionConfig } from "./config";
 import { createWorkItemContextProvider } from "./work-item-context";
 import "./styles.css";
@@ -14,11 +14,11 @@ async function start(): Promise<void> {
   const config = loadExtensionConfig();
   const contextProvider = await createWorkItemContextProvider(config);
   const rootElement = document.getElementById("root");
-  if (!rootElement) throw new Error("The Code Review root element is missing.");
+  if (!rootElement) throw new Error("The Reviews root element is missing.");
 
   createRoot(rootElement).render(
     <StrictMode>
-      <CodeReviewApp
+      <ReviewApp
         api={new ReviewFindingsApiClient(config.apiUrl)}
         contextProvider={contextProvider}
         config={config}
@@ -32,9 +32,8 @@ void start().catch(async (error: unknown) => {
   const rootElement = document.getElementById("root");
   if (rootElement) {
     rootElement.textContent =
-      error instanceof Error ? error.message : "The Code Review extension could not be loaded.";
+      error instanceof Error ? error.message : "The Reviews extension could not be loaded.";
     rootElement.setAttribute("role", "alert");
   }
   await SDK.notifyLoadFailed(String(error));
 });
-

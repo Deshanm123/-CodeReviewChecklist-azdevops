@@ -2,7 +2,7 @@
 
 ## Status
 
-Draft requirements for the Azure DevOps Code Review Checklist.
+Draft requirements for the Azure DevOps Review Checklist.
 
 Requirements use the identifiers `FR-*` for functional requirements and `NFR-*` for non-functional requirements.
 
@@ -10,30 +10,23 @@ Requirements use the identifiers `FR-*` for functional requirements and `NFR-*` 
 
 ### FR-001 — Work-item integration
 
-The product shall expose a Code Review experience from an Azure DevOps work item.
+The product shall expose a shared Reviews experience from an Azure DevOps work item.
 
-The MVP target is a work-item-form page/tab named **Code Review**.
+The MVP target is a work-item-form page/tab named **Reviews** for QA, code, and BA findings.
 
 ### FR-002 — Visibility gating by work-item type
 
-The Code Review tab shall be visible only when the current work item's type is **Product Backlog Item**.
+The Reviews tab shall be visible only when the current work item's type is **Product Backlog Item**.
 
 The tab shall not render on Task, Bug, Feature, Epic, or any other type in the MVP.
 
-### FR-003 — Visibility gating by state
+### FR-003 — State-independent visibility
 
-The Code Review tab shall be visible only when the current work item's **State** is one of:
-
-- `In Progress`
-- `Code Review Pending`
-
-If the state is anything else (e.g. `New`, `Done`, `Removed`), the tab shall not render, or shall render a clear "not applicable in this state" message if Azure DevOps does not support conditionally hiding the contribution itself.
-
-The supported state names shall be configurable, since process templates can rename or add states.
+The Reviews tab shall be available for a Product Backlog Item in every work-item state. The extension shall not use `System.State` as a visibility condition.
 
 ### FR-004 — Current work-item context
 
-The extension shall obtain the current work-item ID, type, state, and Developer field value from the work-item form context. The user shall not be required to type the work-item ID.
+The extension shall obtain the current work-item ID, type, and Developer field value from the work-item form context. The user shall not be required to type the work-item ID.
 
 ### FR-005 — Current user context
 
@@ -57,7 +50,7 @@ The severity value shall be selected by the person adding the finding. The syste
 
 ### FR-008 — View findings
 
-The Code Review tab shall display all findings for the current work item, ordered by severity (Critical first, Minor last), then by creation time within the same severity.
+The Reviews tab shall display all findings for the current work item, ordered by severity (Critical first, Minor last), then by creation time within the same severity.
 
 At minimum, each row shall show: severity, finding text, optional description (when present), and done/not-done state.
 
@@ -181,7 +174,7 @@ Only information necessary for the checklist (finding text, severity, descriptio
 
 ### NFR-003 — Performance
 
-For normal usage, the Code Review tab should become usable quickly after the work-item form loads.
+For normal usage, the Reviews tab should become usable quickly after the work-item form loads.
 
 Initial target: findings-list API p95 under 1 second under expected pilot load.
 
@@ -213,8 +206,8 @@ Implementation shall use current supported Azure DevOps Extension SDK/API patter
 
 The MVP is complete when:
 
-1. The Code Review tab is visible on a PBI only when its state is `In Progress` or `Code Review Pending`.
-2. The tab is not visible on Task, Bug, or other work-item types, or on a PBI outside the two supported states.
+1. The Reviews tab is usable on a PBI in every work-item state.
+2. The tab does not show the checklist UI on Task, Bug, or other work-item types.
 3. A user can add a finding with task text and a severity; the finding appears in the list ordered by severity.
 4. A user can add an optional brief description to a finding.
 5. A user can add multiple findings across separate sessions and see all of them.
@@ -222,4 +215,4 @@ The MVP is complete when:
 7. The Developer can toggle a finding done, and the progress summary updates.
 8. A non-Developer attempting to toggle a finding (e.g. via a direct API call) is rejected by the API.
 9. Findings persist after refresh and are correctly scoped to their own PBI.
-10. Automated tests cover severity ordering, the visibility gate (type + state), and the developer-match authorization rule.
+10. Automated tests cover severity ordering, the work-item-type visibility gate, and the developer-match authorization rule.

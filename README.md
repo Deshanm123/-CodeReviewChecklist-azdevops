@@ -1,4 +1,4 @@
-# Azure DevOps Code Review Checklist
+# Azure DevOps Review Checklist
 
 ## Objective
 
@@ -8,7 +8,7 @@ Let a reviewer leave a dynamic, severity-ranked checklist of findings on a Produ
 
 - Reviewers can add findings (task + severity + optional description) at any point during review, not just once.
 - Severity (`Minor`, `Low`, `Medium`, `High`, `Critical`) is a judgment call the reviewer makes based on context — the system does not infer it.
-- The checklist only appears where it's relevant: work-item type **Product Backlog Item**, state **In Progress** or **Code Review Pending**.
+- The shared QA, code, and BA review checklist is available on **Product Backlog Item** work items in every state.
 - Only the user recorded in the PBI's **Developer** field can tick findings as done — enforced by the API, not just hidden in the UI.
 - Reuse the organization's existing Azure DevOps extension and API rather than standing up new infrastructure.
 
@@ -35,7 +35,7 @@ See [`docs/PRODUCT.md`](docs/PRODUCT.md) for the full product rationale and
 
 ## Relationship to the existing Time Logger extension
 
-This feature is delivered as an additional tab (`Code Review`) inside the same Azure DevOps extension package as the existing Time Logs feature, and as a new module (`review-findings`) inside the existing Fastify + Prisma + PostgreSQL API — not a new extension package or a new deployment. See `DECISIONS.md` (ADR-001) for why.
+This feature is delivered as an additional tab (`Reviews`) inside the same Azure DevOps extension package as the existing Time Logs feature, and as a new module (`review-findings`) inside the existing Fastify + Prisma + PostgreSQL API — not a new extension package or a new deployment. See `DECISIONS.md` (ADR-001) for why.
 
 ## Repository layout
 

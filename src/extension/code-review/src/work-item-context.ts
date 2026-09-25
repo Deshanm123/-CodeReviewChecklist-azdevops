@@ -7,7 +7,6 @@ import {
 import type { ExtensionConfig } from "./config";
 
 const TYPE_FIELD = "System.WorkItemType";
-const STATE_FIELD = "System.State";
 
 interface IdentityFieldValue {
   id?: string;
@@ -18,7 +17,6 @@ export interface WorkItemContext {
   projectId: string;
   workItemId: number;
   workItemType: string;
-  state: string;
   currentUserId: string | null;
   developerId: string | null;
 }
@@ -44,7 +42,6 @@ export async function createWorkItemContextProvider(
       const changedFields = Object.keys(args.changedFields ?? {});
       if (
         changedFields.includes(TYPE_FIELD) ||
-        changedFields.includes(STATE_FIELD) ||
         changedFields.includes(config.developerFieldReferenceName)
       ) {
         notify();
@@ -60,7 +57,7 @@ export async function createWorkItemContextProvider(
     async load() {
       const [id, values] = await Promise.all([
         form.getId(),
-        form.getFieldValues([TYPE_FIELD, STATE_FIELD, config.developerFieldReferenceName]),
+        form.getFieldValues([TYPE_FIELD, config.developerFieldReferenceName]),
       ]);
       const pageContext = SDK.getPageContext();
       const projectId = pageContext.webContext.project?.id;
@@ -75,7 +72,6 @@ export async function createWorkItemContextProvider(
         projectId,
         workItemId: id,
         workItemType: String(values[TYPE_FIELD] ?? ""),
-        state: String(values[STATE_FIELD] ?? ""),
         currentUserId: SDK.getUser().id ?? null,
         developerId: isIdentityFieldValue(developer) ? developer.id ?? null : null,
       };
@@ -90,4 +86,3 @@ export async function createWorkItemContextProvider(
 function isIdentityFieldValue(value: unknown): value is IdentityFieldValue {
   return typeof value === "object" && value !== null;
 }
-

@@ -79,7 +79,7 @@ Provide a fixed severity scale — `Minor`, `Low`, `Medium`, `High`, `Critical` 
 
 ## ADR-004 — Visibility gate (PBI type + In Progress / Code Review Pending state) is enforced client-side, re-checked implicitly by scoping
 
-**Status:** Accepted
+**Status:** Superseded by ADR-008
 
 ### Context
 
@@ -94,6 +94,30 @@ The extension reads work-item type and state from the form context on load (and 
 - The gate can theoretically show stale UI for a moment if the state changes and the SDK does not emit a field-changed event in a given Azure DevOps host version; this is a cosmetic risk, not a data-integrity one.
 - The allow-listed states are configuration, not a hard-coded constant, because process templates can rename or add states (see `ARCHITECTURE.md` Configuration section).
 - This decision does not affect the separate, security-relevant authorization rule for toggling a finding (see ADR-005), which is enforced server-side regardless of tab visibility.
+
+---
+
+## ADR-008 — Reviews are available regardless of work-item state
+
+**Status:** Accepted
+
+### Context
+
+The tab now covers QA, code, and BA review findings in one place. Those activities
+can occur throughout a PBI's lifecycle, so limiting the UI to `In Progress` and
+`Code Review Pending` no longer matches the broader workflow.
+
+### Decision
+
+Keep the Product Backlog Item type gate, but remove all work-item state checks and
+state configuration. The shared `Reviews` tab is available on a PBI in every state.
+
+### Consequences
+
+- QA, code, and BA findings share the existing severity-ranked list.
+- Changing a PBI's state no longer affects the tab's content visibility.
+- A persisted review category is not introduced by this decision; category-specific
+  filtering or ownership requires a separate product and data-model decision.
 
 ---
 

@@ -4,13 +4,13 @@
 
 The system reuses the same two-part shape already established for this Azure DevOps organization's extensions (see the Time Logger's `ARCHITECTURE.md`), adding a new work-item-form contribution and a new domain module rather than a new deployment:
 
-1. **Azure DevOps Extension** — a new **Code Review** page/tab inside the PBI work-item form.
+1. **Azure DevOps Extension** — a shared **Reviews** page/tab inside the PBI work-item form.
 2. **Review Findings API + Database** — authoritative persistence and authorization for findings, added as a new module alongside the existing API.
 
 ```mermaid
 flowchart TB
     U[Azure DevOps User] --> WI[Azure DevOps PBI Work Item]
-    WI --> EXT[Code Review Extension<br/>React + TypeScript]
+    WI --> EXT[Reviews Extension<br/>React + TypeScript]
     EXT --> API[Review Findings API<br/>Node.js + TypeScript]
     API --> ADO[Azure DevOps REST API<br/>resolve Developer field]
     API --> DB[(PostgreSQL)]
@@ -24,15 +24,16 @@ The organization already operates an Azure DevOps extension (React + TypeScript)
 
 ### Contribution
 
-A work-item-form **page/tab** named `Code Review`, contributed alongside the existing `Time Logs` tab from the same extension package (or a closely related package sharing the same publisher/manifest conventions).
+A work-item-form **page/tab** named `Reviews`, contributed alongside the existing `Time Logs` tab from the same extension package (or a closely related package sharing the same publisher/manifest conventions). QA, code, and BA findings share this tab.
 
 ### Visibility
 
-Azure DevOps work-item-form page contributions render inside the form regardless of type/state by default. Because the current SDK/contribution model does not reliably support server-declared conditional visibility by field value across all Azure DevOps deployments, the extension itself performs the type/state check on load:
+Azure DevOps work-item-form page contributions render inside the form regardless of work-item type by default. The extension performs the type check on load:
 
-1. Read work-item type and state from the form context.
-2. If type is not `Product Backlog Item`, or state is not in the configured allow-list (`In Progress`, `Code Review Pending`), render nothing (or a minimal "not applicable" placeholder) instead of the checklist UI.
-3. Re-evaluate when the form's type or state field changes without a full reload, where the SDK exposes a field-changed event.
+1. Read the work-item type from the form context.
+2. If the type is not `Product Backlog Item`, render a minimal "not applicable" placeholder instead of the checklist UI.
+3. Do not inspect or restrict `System.State`; reviews are available in every PBI state.
+4. Re-evaluate when the form's type changes without a full reload.
 
 This is a client-side UX gate, not a security boundary — see Authorization below.
 
@@ -40,9 +41,9 @@ This is a client-side UX gate, not a security boundary — see Authorization bel
 
 The extension is responsible for:
 
-- reading current work-item type, state, ID, and Developer field from the form context;
+- reading current work-item type, ID, and Developer field from the form context;
 - reading current user identity through the organization's established identity mode;
-- applying the type/state visibility gate described above;
+- applying the work-item-type visibility gate described above;
 - rendering the findings list, ordered by severity;
 - rendering the add-finding form;
 - rendering checkboxes as interactive only when the current user matches the Developer field, and read-only otherwise;
@@ -155,13 +156,13 @@ Recommended indexes:
 sequenceDiagram
     actor Reviewer
     participant ADO as Azure DevOps PBI
-    participant Ext as Code Review Extension
+    participant Ext as Reviews Extension
     participant Api as Review Findings API
     participant Db as PostgreSQL
 
-    Reviewer->>ADO: Open PBI (In Progress / Code Review Pending)
-    ADO->>Ext: Load Code Review tab
-    Ext->>Ext: Check type == PBI and state in allow-list
+    Reviewer->>ADO: Open PBI in any state
+    ADO->>Ext: Load Reviews tab
+    Ext->>Ext: Check type == PBI
     Ext->>Api: GET findings for work item
     Api->>Db: Query findings
     Db-->>Api: Findings
@@ -182,7 +183,7 @@ sequenceDiagram
 ```mermaid
 sequenceDiagram
     actor Developer
-    participant Ext as Code Review Extension
+    participant Ext as Reviews Extension
     participant Api as Review Findings API
     participant ADOApi as Azure DevOps REST API
     participant Db as PostgreSQL
@@ -235,17 +236,16 @@ Reuses the existing API's stable machine-readable error shape:
 
 ```text
 Supported work-item type (default: Product Backlog Item)
-Supported states allow-list (default: In Progress, Code Review Pending)
 Developer field reference name (process-template specific)
 ```
 
-Making the type/state allow-list configurable avoids hard-coding assumptions that may not hold across every project's process template.
+The review UI deliberately has no state allow-list.
 
 ## Testing strategy
 
 ### Extension
 
-- component tests for the visibility gate (type/state combinations);
+- component tests for the work-item-type visibility gate;
 - component tests for read-only vs. interactive checkbox rendering based on current-user-vs-Developer;
 - severity-ordering rendering tests;
 - API client tests.
@@ -262,7 +262,7 @@ Making the type/state allow-list configurable avoids hard-coding assumptions tha
 No new deployment is introduced. The Review Findings module ships as part of the existing Fastify application already deployed on Vercel Functions, using the existing pooled PostgreSQL database and the existing Prisma migration process. A new Prisma migration adds the `ReviewFindings` table.
 
 ```text
-Azure DevOps Extension Package (Time Logs + Code Review tabs)
+Azure DevOps Extension Package (Time Logs + Reviews tabs)
             +
 Existing Fastify API on Vercel Functions (new module)
             +

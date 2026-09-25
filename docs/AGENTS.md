@@ -1,8 +1,8 @@
 # AGENTS.md
 
-Instructions for Codex and other coding agents working on the Code Review Checklist feature.
+Instructions for Codex and other coding agents working on the Review Checklist feature.
 
-These instructions apply to the `review-findings` module and the `Code Review` extension tab. If a more specific `AGENTS.md` exists in a subdirectory, that one wins for that subtree. For anything not covered here, the repository's root `AGENTS.md` (for the Time Logger and shared repo conventions) still applies.
+These instructions apply to the `review-findings` module and the `Reviews` extension tab. If a more specific `AGENTS.md` exists in a subdirectory, that one wins for that subtree. For anything not covered here, the repository's root `AGENTS.md` (for the Time Logger and shared repo conventions) still applies.
 
 ## 1. Read before coding
 
@@ -39,7 +39,7 @@ The feature must preserve the append-only MVP shape: add and view findings, and 
 
 Focus on:
 
-- `Code Review` work-item-form tab, gated to PBI type and `In Progress` / `Code Review Pending` state;
+- shared `Reviews` work-item-form tab for QA, code, and BA findings, gated only to PBI type and available in every state;
 - add finding (task, severity, optional description);
 - view findings, ordered by severity;
 - developer-only done toggle, authorized server-side;
@@ -78,11 +78,10 @@ Do not:
 
 - hard-code organization URLs, project IDs, or work-item IDs;
 - hard-code the Developer field reference name — read it from configuration (`ARCHITECTURE.md` Configuration section);
-- hard-code the allow-listed states — read them from configuration;
 - embed PATs or client secrets;
 - log access tokens.
 
-The visibility gate (type == PBI, state in allow-list) is client-side UI logic (ADR-004) — implement it defensively, but do not treat it as a security boundary. The done-toggle authorization is a security boundary and must be re-verified server-side (ADR-005) regardless of what the client renders.
+The visibility gate (type == PBI) is client-side UI logic (ADR-008) — implement it defensively, do not add a work-item state condition, and do not treat it as a security boundary. The done-toggle authorization is a security boundary and must be re-verified server-side (ADR-005) regardless of what the client renders.
 
 ## 6. Backend rules
 
@@ -112,7 +111,7 @@ If the Developer field reference name or the identity-matching rule is unclear f
 
 ## 9. Minimal-diff rule
 
-Prefer the smallest coherent change that satisfies the requirement. Avoid unrelated formatting churn, renaming, dependency upgrades, or changes to the existing Time Logs module while working on Code Review Checklist tasks. If unrelated issues are discovered in the existing module, report them separately rather than fixing them inline.
+Prefer the smallest coherent change that satisfies the requirement. Avoid unrelated formatting churn, renaming, dependency upgrades, or changes to the existing Time Logs module while working on Review Checklist tasks. If unrelated issues are discovered in the existing module, report them separately rather than fixing them inline.
 
 ## 10. Testing rule
 
@@ -130,7 +129,7 @@ Core rules that should have automated coverage include:
 - task required / non-empty;
 - severity must be one of the five allowed values;
 - severity ordering in the returned list and UI;
-- visibility gate: PBI + allow-listed state shows the tab; other combinations do not;
+- visibility gate: every PBI state shows the Reviews UI; non-PBI types do not;
 - done toggle succeeds when caller matches the resolved Developer field;
 - done toggle is rejected when caller does not match, including when the client believed it did;
 - toggle fails closed if the Developer-field resolution call errors.
@@ -199,7 +198,7 @@ Keep the report concise and factual.
 A change is not done merely because code compiles. For applicable changes, verify:
 
 - requirement is satisfied;
-- the visibility gate behaves correctly for the type/state combinations that matter;
+- the visibility gate depends on work-item type and not work-item state;
 - the done-toggle authorization is enforced server-side, not just hidden client-side;
 - error path is handled;
 - tests exist/pass;
