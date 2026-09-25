@@ -21,7 +21,7 @@ functional:
 
 | Variable | Purpose |
 | --- | --- |
-| `DATABASE_URL` | Pooled PostgreSQL connection string suitable for serverless functions. |
+| `DATABASE_URL` | Pooled PostgreSQL connection string suitable for serverless functions. If a managed integration prefixes its variables, the API also recognizes `dev_DATABASE_URL`, `dev_PRISMA_DATABASE_URL`, and `dev_POSTGRES_URL`. |
 | `AZURE_DEVOPS_ORGANIZATION_URL` | Organization URL, for example `https://dev.azure.com/acme`. |
 | `AZURE_DEVOPS_ORGANIZATION_ID` | Stable organization/host ID returned by the Azure DevOps Extension SDK. |
 | `DEVELOPER_FIELD_REFERENCE_NAME` | Process-specific identity field, for example `Custom.Developer`. |
