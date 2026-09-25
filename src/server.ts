@@ -10,9 +10,7 @@ const instance = Fastify({
 });
 const app = await buildApp({ config, instance });
 
-try {
-  await app.listen({ port: config.port, host: "0.0.0.0" });
-} catch (error) {
+void app.listen({ port: config.port, host: "0.0.0.0" }).catch((error) => {
   app.log.error(error);
   process.exitCode = 1;
-}
+});
