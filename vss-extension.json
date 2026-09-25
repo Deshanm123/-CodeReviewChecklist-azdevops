@@ -2,7 +2,7 @@
   "manifestVersion": 1,
   "id": "code-review-checklist",
   "name": "Code Review Checklist",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "publisher": "DeshanMaduranga",
   "description": "Severity-ranked review findings on Azure DevOps work items.",
   "public": false,
@@ -27,4 +27,3 @@
     }
   ]
 }
-

@@ -10,3 +10,4 @@ prisma/*.db
 .vercel
 .env*
 !.env.example
+!src/extension/code-review/.env.production
