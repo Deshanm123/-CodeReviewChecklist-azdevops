@@ -6,6 +6,7 @@ const validRequest = {
   organizationId: "org-1",
   projectId: "project-1",
   workItemId: 42,
+  reviewType: "Code",
   task: "Fix retry limit",
   severity: "Critical",
 };
@@ -26,8 +27,16 @@ describe("review finding validation", () => {
     );
   });
 
-  it("rejects reopening a resolved finding", () => {
-    expectValidationError(() => parseDoneRequest({ done: false }), "done");
+  it("rejects an unsupported review type", () => {
+    expectValidationError(
+      () => parseCreateRequest({ ...validRequest, reviewType: "UX" }),
+      "reviewType",
+    );
+  });
+
+  it("accepts close and reopen status requests", () => {
+    expect(parseDoneRequest({ done: true })).toEqual({ done: true });
+    expect(parseDoneRequest({ done: false })).toEqual({ done: false });
   });
 });
 
@@ -41,4 +50,3 @@ function expectValidationError(action: () => unknown, field: string): void {
     expect((error as AppError).errors).toHaveProperty(field);
   }
 }
-

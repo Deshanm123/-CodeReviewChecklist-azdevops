@@ -37,6 +37,7 @@ The extension shall identify the signed-in user using supported Azure DevOps ide
 Any user viewing the tab shall be able to add a finding containing:
 
 - a short task/finding description (required, non-empty);
+- a review type (required), one of `QA`, `Code`, `BA`;
 - a severity (required), one of `Minor`, `Low`, `Medium`, `High`, `Critical`;
 - an optional brief description (free text);
 - current work-item ID and project/organization context;
@@ -52,17 +53,19 @@ The severity value shall be selected by the person adding the finding. The syste
 
 The Reviews tab shall display all findings for the current work item, ordered by severity (Critical first, Minor last), then by creation time within the same severity.
 
-At minimum, each row shall show: severity, finding text, optional description (when present), and done/not-done state.
+At minimum, each row shall show: stable unique ID, review type, severity, finding text, optional description (when present), open/closed state, and resolution-attempt count.
 
 ### FR-009 — Total / progress summary
 
-The tab shall display a simple progress summary, e.g. `X of Y resolved`, calculated from persisted findings for the current work item.
+The tab shall display a simple progress summary, e.g. `X of Y closed`, calculated from persisted findings for the current work item.
 
-### FR-010 — Mark a finding done — developer-only
+### FR-010 — Close or reopen a finding — developer-only
 
-A user shall be able to toggle a finding's done state **only if** the current signed-in user matches the work item's **Developer** field.
+A user shall be able to close or reopen an individual finding **only if** the current signed-in user matches the work item's **Developer** field.
 
-Users who are not the assigned Developer shall see the checklist as read-only (no interactive checkboxes).
+Users who are not the assigned Developer shall see the checklist as read-only (no interactive status actions).
+
+Each open-to-closed transition shall increment that finding's resolution-attempt counter exactly once. Reopening shall preserve the counter and clear the current completion identity/timestamp.
 
 ### FR-011 — Authorization is server-enforced
 
@@ -80,7 +83,7 @@ Findings shall be scoped to the work item (and project/organization) they were c
 
 ### FR-014 — No edit/delete in MVP
 
-The MVP shall not support editing or deleting an existing finding, or reopening a resolved finding. This is an explicit scope boundary, not an oversight (see `PRODUCT.md`).
+The MVP shall not support editing or deleting an existing finding. Reopening is supported as described in FR-010.
 
 ### FR-015 — Loading and error states
 
@@ -117,6 +120,7 @@ Exact endpoint naming may change during implementation.
   "organizationId": "org-id",
   "projectId": "project-id",
   "workItemId": 48213,
+  "reviewType": "Code",
   "task": "Retry loop has no max-attempt cap",
   "severity": "Critical",
   "description": "Loop can run indefinitely if the webhook endpoint never returns 2xx."

@@ -53,8 +53,8 @@ export async function registerReviewFindingRoutes(
     const token = readBearerToken(request);
     const user = await authenticator.authenticate(token);
     const id = parseFindingId(request.params);
-    parseDoneRequest(request.body);
-    return service.markDone(id, user.id, token);
+    const { done } = parseDoneRequest(request.body);
+    return service.setDone(id, user.id, token, done);
   });
 
   async function authenticateScope(
@@ -68,4 +68,3 @@ export async function registerReviewFindingRoutes(
     return { scope, token };
   }
 }
-

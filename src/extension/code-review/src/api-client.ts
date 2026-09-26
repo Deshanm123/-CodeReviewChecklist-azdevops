@@ -50,10 +50,10 @@ export class ReviewFindingsApiClient {
     });
   }
 
-  async markDone(id: string): Promise<ReviewFindingDto> {
+  async setDone(id: string, done: boolean): Promise<ReviewFindingDto> {
     return this.request(`/review-findings/${encodeURIComponent(id)}/done`, {
       method: "PATCH",
-      body: JSON.stringify({ done: true }),
+      body: JSON.stringify({ done }),
     });
   }
 

@@ -27,28 +27,29 @@ The core domain is:
 
 ```text
 Work Item (PBI)
-  + Finding (task, severity, optional description)
-  + Done state
+  + Finding (review type, task, severity, optional description)
+  + Stable ID, open/closed state, resolution-attempt count
   + Developer field match
   = Review Finding
 ```
 
-The feature must preserve the append-only MVP shape: add and view findings, and let only the matching Developer toggle done. Do not add edit/delete/reopen unless a task explicitly requires it (see ROADMAP Phase 5).
+The feature preserves immutable finding content after creation: add and view findings, and let only the matching Developer close or reopen an item. Editing and deletion remain out of scope.
 
 ## 3. Current MVP boundary
 
 Focus on:
 
 - shared `Reviews` work-item-form tab for QA, code, and BA findings, gated only to PBI type and available in every state;
-- add finding (task, severity, optional description);
+- add finding (review type, task, severity, optional description);
 - view findings, ordered by severity;
-- developer-only done toggle, authorized server-side;
+- display each finding's stable UUID;
+- developer-only close/reopen action, authorized server-side, with a counter incremented on every close;
 - progress summary;
 - tests.
 
 Do not introduce these unless the task explicitly requires them:
 
-- edit/delete/reopen of a finding;
+- edit/delete of a finding;
 - a distinct "reviewer" role/permission model;
 - notifications;
 - cross-PBI reporting;
@@ -89,7 +90,7 @@ The `review-findings` module is added to the existing Node.js + TypeScript + Fas
 
 The API is the authority for:
 
-- finding validation (task required, severity enum);
+- finding validation (review type, task required, severity enum);
 - severity ordering and summary calculation;
 - the done-toggle authorization decision.
 
@@ -97,7 +98,7 @@ Do not trust a client-supplied "I am the Developer" flag, role, or `userId` for 
 
 ## 7. Data rules
 
-A review finding is an append-only record in the MVP: `Task`, `Severity`, and `Description` are set once at creation and are not mutated by later requests. Only `Done`, `DoneBy`, `DoneAt`, and `UpdatedAt` change after creation, via the toggle endpoint.
+A review finding's `ReviewType`, `Task`, `Severity`, and `Description` are set once at creation and are not mutated by later requests. The close/reopen endpoint changes `Done`, `DoneBy`, `DoneAt`, `UpdatedAt`, and `Version`. Each open-to-closed transition increments `ResolutionAttempts`; reopening never decrements or resets it.
 
 Use Prisma migrations for schema changes. Do not delete or rewrite migration history, including the existing `TimeLogs` migrations, without an explicit reason and user approval.
 
@@ -127,11 +128,13 @@ Do not claim tests passed unless they were actually executed.
 Core rules that should have automated coverage include:
 
 - task required / non-empty;
+- review type must be `QA`, `Code`, or `BA`;
 - severity must be one of the five allowed values;
 - severity ordering in the returned list and UI;
 - visibility gate: every PBI state shows the Reviews UI; non-PBI types do not;
-- done toggle succeeds when caller matches the resolved Developer field;
-- done toggle is rejected when caller does not match, including when the client believed it did;
+- close/reopen succeeds when caller matches the resolved Developer field;
+- close/reopen is rejected when caller does not match, including when the client believed it did;
+- each close increments the attempt counter and reopening preserves it;
 - toggle fails closed if the Developer-field resolution call errors.
 
 ## 11. Documentation rule

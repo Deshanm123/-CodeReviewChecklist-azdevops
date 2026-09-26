@@ -7,7 +7,7 @@ export interface ReviewFindingRepository {
   create(input: NewReviewFinding): Promise<ReviewFinding>;
   findAll(scope: WorkItemScope): Promise<ReviewFinding[]>;
   findById(id: string): Promise<ReviewFinding | null>;
-  markDone(id: string, version: number, actorId: string): Promise<ReviewFinding>;
+  setDone(id: string, version: number, actorId: string, done: boolean): Promise<ReviewFinding>;
 }
 
 export class PrismaReviewFindingRepository implements ReviewFindingRepository {
@@ -45,29 +45,41 @@ export class PrismaReviewFindingRepository implements ReviewFindingRepository {
     return this.database.reviewFinding.findUnique({ where: { id } });
   }
 
-  async markDone(id: string, version: number, actorId: string): Promise<ReviewFinding> {
+  async setDone(
+    id: string,
+    version: number,
+    actorId: string,
+    done: boolean,
+  ): Promise<ReviewFinding> {
     const result = await this.database.reviewFinding.updateMany({
-      where: { id, version, done: false },
-      data: {
-        done: true,
-        doneBy: actorId,
-        doneAt: new Date(),
-        version: { increment: 1 },
-      },
+      where: { id, version, done: !done },
+      data: done
+        ? {
+            done: true,
+            doneBy: actorId,
+            doneAt: new Date(),
+            resolutionAttempts: { increment: 1 },
+            version: { increment: 1 },
+          }
+        : {
+            done: false,
+            doneBy: null,
+            doneAt: null,
+            version: { increment: 1 },
+          },
     });
 
     const finding = await this.findById(id);
     if (!finding) {
       throw new AppError(404, "REVIEW_FINDING_NOT_FOUND", "The review finding was not found.");
     }
-    if (result.count === 0 && !finding.done) {
+    if (result.count === 0 && finding.done !== done) {
       throw new AppError(
         409,
         "REVIEW_FINDING_CONFLICT",
-        "The review finding changed while it was being resolved. Refresh and try again.",
+        "The review finding changed while its status was being updated. Refresh and try again.",
       );
     }
     return finding;
   }
 }
-

@@ -46,7 +46,7 @@ The extension is responsible for:
 - applying the work-item-type visibility gate described above;
 - rendering the findings list, ordered by severity;
 - rendering the add-finding form;
-- rendering checkboxes as interactive only when the current user matches the Developer field, and read-only otherwise;
+- rendering close/reopen actions only when the current user matches the Developer field, and read-only status otherwise;
 - calling the Review Findings API;
 - displaying loading, success, validation, and error states.
 
@@ -76,7 +76,7 @@ src/api/
 
 The backend owns:
 
-- validation of finding creation (task text, severity value);
+- validation of finding creation (review type, task text, severity value);
 - ordering/summary calculation;
 - persistence;
 - authorization for the done/not-done toggle — resolved against the work item's **live** Developer field, not a client-asserted role.
@@ -108,10 +108,12 @@ erDiagram
         string OrganizationId
         string ProjectId
         int WorkItemId
+        string ReviewType
         string Task
         string Severity
         string Description
         boolean Done
+        int ResolutionAttempts
         string CreatedBy
         datetime CreatedAt
         string DoneBy
@@ -121,7 +123,7 @@ erDiagram
     }
 ```
 
-`Severity` is stored as a fixed enum: `Minor`, `Low`, `Medium`, `High`, `Critical`.
+`ReviewType` is stored as a fixed enum: `QA`, `Code`, `BA`. `Severity` is stored as a fixed enum: `Minor`, `Low`, `Medium`, `High`, `Critical`. `Id` is the stable external identifier. `ResolutionAttempts` increments atomically on every open-to-closed transition and is retained when an item is reopened.
 
 ## Suggested database table
 
@@ -132,10 +134,12 @@ Id                 uuid
 OrganizationId     varchar
 ProjectId          varchar
 WorkItemId         integer
+ReviewType         enum(QA, Code, BA)
 Task               text
 Severity           varchar(16)   -- Minor | Low | Medium | High | Critical
 Description        text nullable
 Done               boolean default false
+ResolutionAttempts integer default 0
 CreatedBy          varchar
 CreatedAt          timestamptz
 DoneBy             varchar nullable

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   compareFindingsBySeverity,
+  type ReviewType,
   type ReviewFindingDto,
   type Severity,
   type WorkItemScope,
@@ -59,6 +60,7 @@ export function ReviewApp({ api, contextProvider, config }: ReviewAppProps) {
   );
 
   async function addFinding(input: {
+    reviewType: ReviewType;
     task: string;
     severity: Severity;
     description?: string;
@@ -83,17 +85,17 @@ export function ReviewApp({ api, contextProvider, config }: ReviewAppProps) {
     }
   }
 
-  async function resolveFinding(id: string): Promise<void> {
+  async function updateFindingStatus(id: string, done: boolean): Promise<void> {
     if (pendingIds.has(id)) return;
     setPendingIds((current) => new Set(current).add(id));
     setError("");
     setMessage("");
     try {
-      const updated = await api.markDone(id);
+      const updated = await api.setDone(id, done);
       setFindings((current) =>
         current.map((finding) => (finding.id === updated.id ? updated : finding)),
       );
-      setMessage("Finding resolved.");
+      setMessage(done ? "Finding closed." : "Finding reopened.");
     } catch (resolveError) {
       setError(errorMessage(resolveError));
     } finally {
@@ -123,11 +125,11 @@ export function ReviewApp({ api, contextProvider, config }: ReviewAppProps) {
         <div>
           <h1>Reviews</h1>
           <p className="progress" aria-live="polite">
-            {summary.resolved} of {summary.total} resolved
+            {summary.resolved} of {summary.total} closed
           </p>
         </div>
         {!canResolve ? (
-          <p className="read-only-note">Only the assigned Developer can resolve findings.</p>
+          <p className="read-only-note">Only the assigned Developer can close or reopen findings.</p>
         ) : null}
       </header>
 
@@ -143,7 +145,7 @@ export function ReviewApp({ api, contextProvider, config }: ReviewAppProps) {
           findings={findings}
           canResolve={canResolve}
           pendingIds={pendingIds}
-          onResolve={resolveFinding}
+          onStatusChange={updateFindingStatus}
         />
       </section>
     </main>

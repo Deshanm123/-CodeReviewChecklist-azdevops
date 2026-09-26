@@ -1,4 +1,5 @@
 import {
+  isReviewType,
   isSeverity,
   type CreateReviewFindingRequest,
   type WorkItemScope,
@@ -21,9 +22,13 @@ export function parseCreateRequest(input: unknown): CreateReviewFindingRequest {
   const value = asRecord(input);
   const scope = parseScope(value);
   const errors: Record<string, string[]> = {};
+  const reviewType = isReviewType(value.reviewType) ? value.reviewType : null;
   const task = requiredString(value.task, "task", errors, 500);
   const description = optionalString(value.description, "description", errors, 4_000);
 
+  if (!reviewType) {
+    errors.reviewType = ["Review type must be one of QA, Code, BA."];
+  }
   const severity = isSeverity(value.severity) ? value.severity : null;
   if (!severity) {
     errors.severity = ["Severity must be one of Minor, Low, Medium, High, Critical."];
@@ -32,18 +37,19 @@ export function parseCreateRequest(input: unknown): CreateReviewFindingRequest {
 
   return {
     ...scope,
+    reviewType: reviewType!,
     task,
     severity: severity!,
     ...(description === undefined ? {} : { description }),
   };
 }
 
-export function parseDoneRequest(input: unknown): { done: true } {
+export function parseDoneRequest(input: unknown): { done: boolean } {
   const value = asRecord(input);
-  if (value.done !== true) {
-    throw validationError({ done: ["Done must be true. Reopening is not supported in the MVP."] });
+  if (typeof value.done !== "boolean") {
+    throw validationError({ done: ["Done must be true to close or false to reopen."] });
   }
-  return { done: true };
+  return { done: value.done };
 }
 
 export function parseFindingId(input: unknown): string {

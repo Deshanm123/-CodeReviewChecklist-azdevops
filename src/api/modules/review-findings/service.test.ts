@@ -7,7 +7,7 @@ import type { NewReviewFinding, ReviewFinding } from "./types.js";
 
 class MemoryRepository implements ReviewFindingRepository {
   findings: ReviewFinding[];
-  markDoneCalls = 0;
+  setDoneCalls = 0;
 
   constructor(findings: ReviewFinding[] = []) {
     this.findings = findings;
@@ -27,13 +27,19 @@ class MemoryRepository implements ReviewFindingRepository {
     return this.findings.find((finding) => finding.id === id) ?? null;
   }
 
-  async markDone(id: string, _version: number, actorId: string): Promise<ReviewFinding> {
-    this.markDoneCalls += 1;
+  async setDone(
+    id: string,
+    _version: number,
+    actorId: string,
+    done: boolean,
+  ): Promise<ReviewFinding> {
+    this.setDoneCalls += 1;
     const finding = await this.findById(id);
     if (!finding) throw new Error("not found");
-    finding.done = true;
-    finding.doneBy = actorId;
-    finding.doneAt = new Date("2026-09-25T03:00:00.000Z");
+    finding.done = done;
+    finding.doneBy = done ? actorId : null;
+    finding.doneAt = done ? new Date("2026-09-25T03:00:00.000Z") : null;
+    finding.resolutionAttempts += done ? 1 : 0;
     return finding;
   }
 }
@@ -65,26 +71,42 @@ describe("ReviewFindingService", () => {
     ]);
   });
 
-  it("lets the live assigned Developer resolve a finding", async () => {
+  it("lets the live assigned Developer close a finding and increments attempts", async () => {
     const repository = new MemoryRepository([makeFinding()]);
     const service = new ReviewFindingService(repository, resolver("developer-1"), "org-1");
 
-    const finding = await service.markDone("finding-1", "developer-1", "token");
+    const finding = await service.setDone("finding-1", "developer-1", "token", true);
 
     expect(finding.done).toBe(true);
     expect(finding.doneBy).toBe("developer-1");
-    expect(repository.markDoneCalls).toBe(1);
+    expect(finding.resolutionAttempts).toBe(1);
+    expect(repository.setDoneCalls).toBe(1);
+  });
+
+  it("lets the live assigned Developer reopen a finding without resetting attempts", async () => {
+    const repository = new MemoryRepository([
+      makeFinding({ done: true, resolutionAttempts: 2, doneBy: "developer-1" }),
+    ]);
+    const service = new ReviewFindingService(repository, resolver("developer-1"), "org-1");
+
+    const finding = await service.setDone("finding-1", "developer-1", "token", false);
+
+    expect(finding.done).toBe(false);
+    expect(finding.doneBy).toBeNull();
+    expect(finding.doneAt).toBeNull();
+    expect(finding.resolutionAttempts).toBe(2);
+    expect(repository.setDoneCalls).toBe(1);
   });
 
   it("rejects a non-Developer even if the client attempted a direct call", async () => {
     const repository = new MemoryRepository([makeFinding()]);
     const service = new ReviewFindingService(repository, resolver("developer-1"), "org-1");
 
-    await expect(service.markDone("finding-1", "reviewer-1", "token")).rejects.toMatchObject({
+    await expect(service.setDone("finding-1", "reviewer-1", "token", true)).rejects.toMatchObject({
       statusCode: 403,
       code: "DEVELOPER_PERMISSION_REQUIRED",
     });
-    expect(repository.markDoneCalls).toBe(0);
+    expect(repository.setDoneCalls).toBe(0);
   });
 
   it("does not resolve a finding from another configured organization", async () => {
@@ -94,7 +116,7 @@ describe("ReviewFindingService", () => {
     const developerResolver = resolver("developer-1");
     const service = new ReviewFindingService(repository, developerResolver, "org-1");
 
-    await expect(service.markDone("finding-1", "developer-1", "token")).rejects.toMatchObject({
+    await expect(service.setDone("finding-1", "developer-1", "token", true)).rejects.toMatchObject({
       statusCode: 404,
     });
     expect(developerResolver.resolveDeveloperId).not.toHaveBeenCalled();
@@ -110,10 +132,10 @@ describe("ReviewFindingService", () => {
     };
     const service = new ReviewFindingService(repository, failedResolver, "org-1");
 
-    await expect(service.markDone("finding-1", "developer-1", "token")).rejects.toMatchObject({
+    await expect(service.setDone("finding-1", "developer-1", "token", true)).rejects.toMatchObject({
       statusCode: 503,
     });
-    expect(repository.markDoneCalls).toBe(0);
+    expect(repository.setDoneCalls).toBe(0);
   });
 
   it("calculates progress from persisted findings", async () => {
@@ -136,10 +158,12 @@ function makeFinding(overrides: Partial<ReviewFinding> = {}): ReviewFinding {
     organizationId: "org-1",
     projectId: "project-1",
     workItemId: 42,
+    reviewType: "Code",
     task: "Fix retry limit",
     severity: "Medium",
     description: null,
     done: false,
+    resolutionAttempts: 0,
     createdBy: "reviewer-1",
     createdAt: new Date("2026-09-25T00:00:00.000Z"),
     doneBy: null,

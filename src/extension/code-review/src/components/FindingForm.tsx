@@ -1,32 +1,46 @@
 import { useState, type FormEvent } from "react";
-import { SEVERITIES, type Severity } from "../../../../shared/review-findings";
+import {
+  REVIEW_TYPES,
+  REVIEW_TYPE_LABELS,
+  SEVERITIES,
+  type ReviewType,
+  type Severity,
+} from "../../../../shared/review-findings";
 
 interface FindingFormProps {
   disabled: boolean;
-  onSubmit(input: { task: string; severity: Severity; description?: string }): Promise<boolean>;
+  onSubmit(input: {
+    reviewType: ReviewType;
+    task: string;
+    severity: Severity;
+    description?: string;
+  }): Promise<boolean>;
 }
 
 export function FindingForm({ disabled, onSubmit }: FindingFormProps) {
   const [task, setTask] = useState("");
+  const [reviewType, setReviewType] = useState<ReviewType | "">("");
   const [severity, setSeverity] = useState<Severity | "">("");
   const [description, setDescription] = useState("");
   const [validationMessage, setValidationMessage] = useState("");
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>): Promise<void> {
     event.preventDefault();
-    if (!task.trim() || !severity) {
-      setValidationMessage("Enter a finding and select its severity.");
+    if (!task.trim() || !reviewType || !severity) {
+      setValidationMessage("Enter a finding and select its review type and severity.");
       return;
     }
 
     setValidationMessage("");
     const created = await onSubmit({
+      reviewType,
       task: task.trim(),
       severity,
       ...(description.trim() ? { description: description.trim() } : {}),
     });
     if (!created) return;
     setTask("");
+    setReviewType("");
     setSeverity("");
     setDescription("");
   }
@@ -36,7 +50,10 @@ export function FindingForm({ disabled, onSubmit }: FindingFormProps) {
       <h2>Add finding</h2>
       <div className="form-grid">
         <label>
-          Finding <span aria-hidden="true">*</span>
+          <span className="field-label">
+            Finding <span className="required-marker" aria-hidden="true" title="Required">*</span>
+            <span className="sr-only"> (required)</span>
+          </span>
           <input
             value={task}
             onChange={(event) => setTask(event.target.value)}
@@ -46,7 +63,29 @@ export function FindingForm({ disabled, onSubmit }: FindingFormProps) {
           />
         </label>
         <label>
-          Severity <span aria-hidden="true">*</span>
+          <span className="field-label">
+            Review type <span className="required-marker" aria-hidden="true" title="Required">*</span>
+            <span className="sr-only"> (required)</span>
+          </span>
+          <select
+            value={reviewType}
+            onChange={(event) => setReviewType(event.target.value as ReviewType | "")}
+            required
+            disabled={disabled}
+          >
+            <option value="">Select review type</option>
+            {REVIEW_TYPES.map((value) => (
+              <option key={value} value={value}>
+                {REVIEW_TYPE_LABELS[value]}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label>
+          <span className="field-label">
+            Severity <span className="required-marker" aria-hidden="true" title="Required">*</span>
+            <span className="sr-only"> (required)</span>
+          </span>
           <select
             value={severity}
             onChange={(event) => setSeverity(event.target.value as Severity | "")}
@@ -63,7 +102,9 @@ export function FindingForm({ disabled, onSubmit }: FindingFormProps) {
         </label>
       </div>
       <label>
-        Description <span className="optional">(optional)</span>
+        <span className="field-label">
+          Description <span className="optional">Optional</span>
+        </span>
         <textarea
           value={description}
           onChange={(event) => setDescription(event.target.value)}

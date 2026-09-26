@@ -44,10 +44,11 @@ export class ReviewFindingService {
     };
   }
 
-  async markDone(
+  async setDone(
     id: string,
     actorId: string,
     bearerToken: string,
+    done: boolean,
   ): Promise<ReviewFindingDto> {
     const finding = await this.repository.findById(id);
     if (!finding) {
@@ -62,12 +63,12 @@ export class ReviewFindingService {
       throw new AppError(
         403,
         "DEVELOPER_PERMISSION_REQUIRED",
-        "Only the assigned Developer can resolve findings.",
+        "Only the assigned Developer can close or reopen findings.",
       );
     }
 
-    if (finding.done) return toDto(finding);
-    return toDto(await this.repository.markDone(id, finding.version, actorId));
+    if (finding.done === done) return toDto(finding);
+    return toDto(await this.repository.setDone(id, finding.version, actorId, done));
   }
 }
 
@@ -85,10 +86,12 @@ function toDto(finding: ReviewFinding): ReviewFindingDto {
     organizationId: finding.organizationId,
     projectId: finding.projectId,
     workItemId: finding.workItemId,
+    reviewType: finding.reviewType,
     task: finding.task,
     severity: finding.severity,
     description: finding.description,
     done: finding.done,
+    resolutionAttempts: finding.resolutionAttempts,
     createdBy: finding.createdBy,
     createdAt: finding.createdAt.toISOString(),
     doneBy: finding.doneBy,

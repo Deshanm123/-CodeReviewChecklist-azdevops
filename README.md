@@ -6,15 +6,16 @@ Let a reviewer leave a dynamic, severity-ranked checklist of findings on a Produ
 
 ## Goals
 
-- Reviewers can add findings (task + severity + optional description) at any point during review, not just once.
+- Reviewers can add findings (review type + task + severity + optional description) at any point during review, not just once.
 - Severity (`Minor`, `Low`, `Medium`, `High`, `Critical`) is a judgment call the reviewer makes based on context — the system does not infer it.
 - The shared QA, code, and BA review checklist is available on **Product Backlog Item** work items in every state.
-- Only the user recorded in the PBI's **Developer** field can tick findings as done — enforced by the API, not just hidden in the UI.
+- Each finding has a stable unique ID, can be closed or reopened independently, and tracks how many resolution attempts have been made.
+- Only the user recorded in the PBI's **Developer** field can close or reopen findings — enforced by the API, not just hidden in the UI.
 - Reuse the organization's existing Azure DevOps extension and API rather than standing up new infrastructure.
 
 ## Non-goals (MVP)
 
-- Editing, deleting, or reopening a finding.
+- Editing or deleting a finding.
 - A distinct "reviewer" permission/role.
 - Linking findings to Pull Request diffs.
 - Notifications, blocking state transitions, or cross-PBI reporting.

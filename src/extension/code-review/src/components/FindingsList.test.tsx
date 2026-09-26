@@ -8,10 +8,12 @@ const finding: ReviewFindingDto = {
   organizationId: "org-1",
   projectId: "project-1",
   workItemId: 42,
+  reviewType: "QA",
   task: "Add a failure-path test",
   severity: "High",
   description: null,
   done: false,
+  resolutionAttempts: 0,
   createdBy: "reviewer-1",
   createdAt: "2026-09-25T00:00:00.000Z",
   doneBy: null,
@@ -27,24 +29,43 @@ describe("FindingsList", () => {
         findings={[finding]}
         canResolve={false}
         pendingIds={new Set()}
-        onResolve={vi.fn()}
+        onStatusChange={vi.fn()}
       />,
     );
     expect(screen.getByText("Open")).toBeTruthy();
-    expect(screen.queryByRole("checkbox")).toBeNull();
+    expect(screen.getByText("QA Reviews")).toBeTruthy();
+    expect(screen.getByText(`ID: ${finding.id}`)).toBeTruthy();
+    expect(screen.getByText("0 attempts")).toBeTruthy();
+    expect(screen.queryByRole("button", { name: /close/i })).toBeNull();
   });
 
-  it("lets the matching Developer resolve an open finding", () => {
-    const onResolve = vi.fn().mockResolvedValue(undefined);
+  it("lets the matching Developer close an open finding", () => {
+    const onStatusChange = vi.fn().mockResolvedValue(undefined);
     render(
       <FindingsList
         findings={[finding]}
         canResolve
         pendingIds={new Set()}
-        onResolve={onResolve}
+        onStatusChange={onStatusChange}
       />,
     );
-    fireEvent.click(screen.getByRole("checkbox", { name: /add a failure-path test/i }));
-    expect(onResolve).toHaveBeenCalledWith(finding.id);
+    fireEvent.click(screen.getByRole("button", { name: /close.*failure-path test/i }));
+    expect(onStatusChange).toHaveBeenCalledWith(finding.id, true);
+  });
+
+  it("lets the matching Developer reopen a closed finding without hiding its attempts", () => {
+    const onStatusChange = vi.fn().mockResolvedValue(undefined);
+    render(
+      <FindingsList
+        findings={[{ ...finding, done: true, resolutionAttempts: 2 }]}
+        canResolve
+        pendingIds={new Set()}
+        onStatusChange={onStatusChange}
+      />,
+    );
+    expect(screen.getByText("Closed")).toBeTruthy();
+    expect(screen.getByText("2 attempts")).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: /reopen.*failure-path test/i }));
+    expect(onStatusChange).toHaveBeenCalledWith(finding.id, false);
   });
 });

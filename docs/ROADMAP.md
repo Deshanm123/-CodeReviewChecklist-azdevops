@@ -5,8 +5,8 @@
 An initial code scaffold now covers the deliverables through Phase 4: Prisma model
 and migration, Fastify routes/service/repository, Azure DevOps work-item adapters,
 the Reviews page contribution, accessible add/list/resolve UI, configuration,
-and focused tests. It has not yet been validated against a real Azure DevOps
-organization or PostgreSQL instance. Authentication ADR-007 remains proposed
+and focused tests. Review type, stable finding IDs, close/reopen, and resolution-attempt
+tracking are now included. Authentication ADR-007 remains proposed
 because the referenced existing Time Logger identity implementation was not present
 in this repository.
 
@@ -54,7 +54,7 @@ Deliverables:
 
 - create API (`POST /api/review-findings`);
 - list-by-work-item API (`GET /api/review-findings`);
-- add-finding form: task, severity, optional description;
+- add-finding form: review type, task, severity, optional description;
 - findings list, ordered by severity;
 - duplicate-submit protection.
 
@@ -72,8 +72,9 @@ Deliverables:
 
 - summary API (`GET /api/review-findings/summary`);
 - toggle-done API (`PATCH /api/review-findings/{id}/done`) with server-side Developer-field resolution and authorization;
-- interactive checkbox rendering only for the matching Developer, read-only for everyone else;
-- progress summary (`X of Y resolved`);
+- interactive close/reopen actions only for the matching Developer, read-only for everyone else;
+- per-finding unique ID and resolution-attempt count;
+- progress summary (`X of Y closed`);
 - API authorization tests, including a rejected toggle from a non-Developer.
 
 Exit criteria:
@@ -98,7 +99,7 @@ Exit criteria:
 
 - pilot team can add and resolve findings on real PBIs without developer intervention for normal flows.
 
-## Phase 5 — Edit, delete, reopen
+## Phase 5 — Edit and delete
 
 **Goal:** remove the "append-only" limitation once the core workflow is proven.
 
@@ -106,7 +107,6 @@ Possible deliverables:
 
 - edit a finding's task/severity/description (own findings, or reviewer role once one exists);
 - delete a finding;
-- reopen a resolved finding;
 - concurrency handling for simultaneous edits.
 
 ## Phase 6 — Process integration
@@ -140,9 +140,9 @@ PBI in any state
         ↓
 Reviews tab (QA + Code + BA)
         ↓
-Reviewer adds findings with severity (repeatable)
+Reviewer adds typed findings with severity (repeatable)
         ↓
-Developer-only checklist resolution
+Developer-only close/reopen with attempt tracking
         ↓
 Persistent, correctly-scoped, correctly-authorized checklist
 ```

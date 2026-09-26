@@ -15,25 +15,33 @@ enum ReviewFindingSeverity {
   Critical
 }
 
+enum ReviewType {
+  QA
+  Code
+  BA
+}
+
 model ReviewFinding {
-  id             String                @id @default(uuid()) @db.Uuid
-  organizationId String
-  projectId      String
-  workItemId     Int
-  task           String
-  severity       ReviewFindingSeverity
-  description    String?
-  done           Boolean               @default(false)
-  createdBy      String
-  createdAt      DateTime               @default(now())
-  doneBy         String?
-  doneAt         DateTime?
-  updatedAt      DateTime               @updatedAt
-  version        Int                    @default(1)
-  idempotencyKey String
+  id                 String                @id @default(uuid()) @db.Uuid
+  organizationId     String
+  projectId          String
+  workItemId         Int
+  reviewType         ReviewType            @default(Code)
+  task               String
+  severity           ReviewFindingSeverity
+  description        String?
+  done               Boolean               @default(false)
+  resolutionAttempts Int                   @default(0)
+  createdBy          String
+  createdAt          DateTime               @default(now())
+  doneBy             String?
+  doneAt             DateTime?
+  updatedAt          DateTime               @updatedAt
+  version            Int                    @default(1)
+  idempotencyKey     String
 
   @@index([organizationId, projectId, workItemId, severity])
+  @@index([organizationId, projectId, workItemId, reviewType])
   @@unique([organizationId, projectId, workItemId, idempotencyKey])
   @@map("ReviewFindings")
 }
-

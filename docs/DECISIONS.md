@@ -18,7 +18,7 @@ Do not silently change an accepted decision in code. Update this file and explai
 
 ## ADR-001 — Extend the existing extension/API instead of building a new stack
 
-**Status:** Accepted
+**Status:** Superseded by ADR-009
 
 ### Context
 
@@ -37,7 +37,7 @@ Add a new `Code Review` work-item-form tab to the existing extension package, an
 
 ---
 
-## ADR-002 — Findings are dynamic and append-only in the MVP
+## ADR-002 — Findings are dynamic and independently resolvable in the MVP
 
 **Status:** Accepted
 
@@ -47,13 +47,13 @@ Reviewers work through a PBI's implementation iteratively and find issues over t
 
 ### Decision
 
-The MVP supports only: add a finding, view all findings, and toggle a finding done. Editing, deleting, and reopening a finding are explicitly out of scope for the MVP.
+The MVP supports: add a finding, view all findings, and close or reopen each finding independently. Editing and deleting remain out of scope for the MVP. Resolution attempts are retained and increment only when a finding moves from open to closed.
 
 ### Consequences
 
 - Reviewers can keep adding findings throughout the review without friction.
 - A mistaken finding cannot be removed or corrected in the MVP; a follow-up finding or an out-of-band correction (e.g. a comment) is the workaround until edit/delete ships.
-- The data model should not preclude adding edit/delete/reopen later (soft fields like `UpdatedAt` and a concurrency token are included from the start).
+- Reopening preserves the resolution-attempt count so repeated review cycles remain visible.
 
 ---
 
@@ -116,8 +116,7 @@ state configuration. The shared `Reviews` tab is available on a PBI in every sta
 
 - QA, code, and BA findings share the existing severity-ranked list.
 - Changing a PBI's state no longer affects the tab's content visibility.
-- A persisted review category is not introduced by this decision; category-specific
-  filtering or ownership requires a separate product and data-model decision.
+- Every finding now persists one of the three review types defined by ADR-009.
 
 ---
 
@@ -191,3 +190,23 @@ back to display-name or email matching.
 - Expired tokens and Azure DevOps outages fail closed.
 - The approach must be replaced or this ADR accepted if the absent Time Logger
   authentication implementation is later supplied and uses a different mode.
+
+---
+
+## ADR-009 — Findings carry a review type, stable ID, reopenable status, and attempt counter
+
+**Status:** Accepted
+
+### Context
+
+The Reviews tab now owns QA, code, and BA review workflows. A finding needs an explicit category and a stable reference, and repeated close/reopen cycles must remain visible rather than losing their history.
+
+### Decision
+
+Every finding has a required fixed review type (`QA`, `Code`, or `BA`) and a backend-generated UUID displayed in the UI. The assigned Developer may close or reopen each finding independently. Every open-to-closed transition atomically increments `ResolutionAttempts`; reopening preserves the counter and clears `DoneBy`/`DoneAt`. Finding content remains immutable after creation, and edit/delete remain out of scope.
+
+### Consequences
+
+- Existing rows are migrated to `Code`; already-closed rows start with one attempt.
+- Attempts measure completed resolution cycles, not button clicks or reopen actions.
+- Status changes retain optimistic-concurrency protection and live Developer authorization.

@@ -1,11 +1,13 @@
-import type { Severity, WorkItemScope } from "../../../shared/review-findings.js";
+import type { ReviewType, Severity, WorkItemScope } from "../../../shared/review-findings.js";
 
 export interface ReviewFinding extends WorkItemScope {
   id: string;
+  reviewType: ReviewType;
   task: string;
   severity: Severity;
   description: string | null;
   done: boolean;
+  resolutionAttempts: number;
   createdBy: string;
   createdAt: Date;
   doneBy: string | null;
@@ -16,10 +18,10 @@ export interface ReviewFinding extends WorkItemScope {
 }
 
 export interface NewReviewFinding extends WorkItemScope {
+  reviewType: ReviewType;
   task: string;
   severity: Severity;
   description: string | null;
   createdBy: string;
   idempotencyKey: string;
 }
-
